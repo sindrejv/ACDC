@@ -3,9 +3,10 @@ import { IInputs } from "./generated/ManifestTypes";
 import { GAME_CONFIG } from "./types/gameTypes";
 import { Wizard } from "./components/Wizard";
 import { Obstacle } from "./components/Obstacle";
-import { GameOverModal } from "./components/GameOverModal";
 import { useGameState } from "./hooks/useGameState";
 import { updateGameState } from "./utils/gameLogic";
+import { GameOverModal } from "./components/GameOverModal";
+import { GilderoyHealModal } from "./components/GilderoyHealModal";
 
 export type CrmParams = {
   context: ComponentFramework.Context<IInputs>;
@@ -14,11 +15,39 @@ export type CrmParams = {
 export const App: React.FC<CrmParams> = ({ context }) => {
   const { gameStarted, setGameStarted, gameState, setGameState, resetGame } =
     useGameState();
+  const [lives, setLives] = React.useState(3);
+  const [bestScore, setBestScore] = React.useState(0);
+
+  const handleGameOver = React.useCallback(() => {
+    const currentScore = Math.floor(gameState.score / 10);
+
+    if (lives > 1) {
+      setLives((prev) => prev - 1);
+      setGameState((prev) => ({
+        ...prev,
+        gameOver: true,
+      }));
+    } else {
+      // Final game over - no more lives left
+      setLives(0);
+      setBestScore((prev) => Math.max(prev, currentScore));
+      setGameState((prev) => ({
+        ...prev,
+        gameOver: true,
+      }));
+    }
+  }, [lives, gameState.score, setGameState]);
 
   const gameLoop = React.useCallback(() => {
     if (!gameStarted || gameState.gameOver) return;
-    setGameState(updateGameState);
-  }, [gameStarted, gameState.gameOver, setGameState]);
+    setGameState((prevState) => {
+      const newState = updateGameState(prevState);
+      if (newState.gameOver) {
+        handleGameOver();
+      }
+      return newState;
+    });
+  }, [gameStarted, gameState.gameOver, setGameState, handleGameOver]);
 
   const handleKeyPress = React.useCallback(
     (event: KeyboardEvent) => {
@@ -120,10 +149,34 @@ export const App: React.FC<CrmParams> = ({ context }) => {
                 color: "white",
               }}
             >
-              Score: {Math.floor(gameState.score / 10)}
+              <div>Score: {Math.floor(gameState.score / 10)}</div>
+              <div>Lives: {lives}</div>
+              <div>Best Score: {bestScore}</div>
             </div>
             {gameState.gameOver && (
-              <GameOverModal score={gameState.score} onRestart={resetGame} />
+              <>
+                {lives === 2 ? (
+                  <GilderoyHealModal
+                    onContinue={() => {
+                      resetGame();
+                    }}
+                    livesRemaining={lives}
+                    bestScore={bestScore}
+                  />
+                ) : (
+                  <GameOverModal
+                    score={gameState.score}
+                    bestScore={bestScore}
+                    onRestart={() => {
+                      if (lives === 0) {
+                        setLives(3);
+                      }
+                      resetGame();
+                    }}
+                    attemptsLeft={lives}
+                  />
+                )}
+              </>
             )}
           </>
         )}
