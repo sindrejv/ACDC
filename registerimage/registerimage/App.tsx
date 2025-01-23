@@ -59,7 +59,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
       );
 
       if (!detection) {
-        console.log("No face detected");
+        +console.log("No face detected");
         return null;
       }
 
