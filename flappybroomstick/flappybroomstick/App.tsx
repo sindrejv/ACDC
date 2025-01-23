@@ -116,7 +116,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
       width: "800px",
       height: "600px",
       position: "relative" as const,
-      backgroundColor: "#87CEEB",
+      backgroundColor: "#000000",
       overflow: "hidden",
     },
   };
