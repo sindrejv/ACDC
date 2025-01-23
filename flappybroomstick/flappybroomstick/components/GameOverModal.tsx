@@ -37,9 +37,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
       <h2>{getMessage()}</h2>
       <p>Current Score: {Math.floor(score / 10)}</p>
       <p>Best Score: {bestScore}</p>
-      {attemptsLeft > 0 && (
-        <p>Attempts remaining: {attemptsLeft}</p>
-      )}
+      {attemptsLeft > 0 && <p>Attempts remaining: {attemptsLeft}</p>}
       <button
         onClick={onRestart}
         style={{
