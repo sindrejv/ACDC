@@ -1,0 +1,10 @@
+@keyframes explode {
+  0% {
+    transform: scale(0) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1) translate(var(--translateX), var(--translateY));
+  }
+}
