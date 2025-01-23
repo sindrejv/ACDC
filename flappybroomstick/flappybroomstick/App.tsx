@@ -113,7 +113,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
       alignItems: "center",
     },
     gameArea: {
-      width: "800px",
+      width: "1200px",
       height: "600px",
       position: "relative" as const,
       backgroundColor: "#000000",
