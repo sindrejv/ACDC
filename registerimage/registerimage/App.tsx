@@ -43,6 +43,20 @@ export const App: React.FC<CrmParams> = ({ context }) => {
     setCapturedImage(null);
   };
 
+  const saveImage = () => {
+    if (!capturedImage) return;
+
+    // Create a temporary link element
+    const link = document.createElement("a");
+    link.href = capturedImage;
+    link.download = `captured-image-${new Date().getTime()}.jpg`;
+
+    // Programmatically click the link to trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   React.useEffect(() => {
     startCamera();
     return () => {
@@ -71,7 +85,10 @@ export const App: React.FC<CrmParams> = ({ context }) => {
             alt="Captured"
             style={{ width: "100%", marginBottom: "10px" }}
           />
-          <button onClick={retake}>Retake Picture</button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button onClick={retake}>Retake Picture</button>
+            <button onClick={saveImage}>Save Picture</button>
+          </div>
         </>
       )}
     </div>

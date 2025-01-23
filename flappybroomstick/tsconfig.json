@@ -1,7 +1,7 @@
 {
   "extends": "./node_modules/pcf-scripts/tsconfig_base.json",
   "compilerOptions": {
-    "typeRoots": ["node_modules/@types"],
+    "typeRoots": ["node_modules/@types", "types"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "jsx": "react",
@@ -9,5 +9,6 @@
     "strict": true,
     "target": "es2022",
     "lib": ["es2022", "dom"]
-  }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "types/custom.d.ts"]
 }

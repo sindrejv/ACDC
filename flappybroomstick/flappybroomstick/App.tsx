@@ -8,6 +8,7 @@ import {
 } from "./types/gameTypes";
 import { Wizard } from "./components/Wizard";
 import { Obstacle } from "./components/Obstacle";
+import { GameOverModal } from "./components/GameOverModal";
 
 export type CrmParams = {
   context: ComponentFramework.Context<IInputs>;
@@ -119,6 +120,19 @@ export const App: React.FC<CrmParams> = ({ context }) => {
     [gameStarted, gameState.gameOver, resetGame]
   );
 
+  const handleClick = React.useCallback(() => {
+    if (!gameStarted) {
+      setGameStarted(true);
+    } else if (gameState.gameOver) {
+      resetGame();
+    } else {
+      setGameState((prev) => ({
+        ...prev,
+        wizardVelocity: GAME_CONFIG.JUMP_FORCE,
+      }));
+    }
+  }, [gameStarted, gameState.gameOver, resetGame]);
+
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
     const gameInterval = setInterval(gameLoop, 16);
@@ -138,6 +152,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
         background: "#87CEEB",
         overflow: "hidden",
       }}
+      onClick={handleClick}
     >
       {!gameStarted ? (
         <div
@@ -152,7 +167,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
             textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
           }}
         >
-          Press SPACE to Start
+          Press SPACE or Click to Start
         </div>
       ) : (
         <>
@@ -175,21 +190,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
             Score: {Math.floor(gameState.score / 10)}
           </div>
           {gameState.gameOver && (
-            <div
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: "48px",
-                color: "white",
-                textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
-              }}
-            >
-              Game Over!
-              <br />
-              <span style={{ fontSize: "24px" }}>Press SPACE to Restart</span>
-            </div>
+            <GameOverModal score={gameState.score} onRestart={resetGame} />
           )}
         </>
       )}
