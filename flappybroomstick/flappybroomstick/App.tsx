@@ -17,9 +17,14 @@ export const App: React.FC<CrmParams> = ({ context }) => {
     useGameState();
   const [lives, setLives] = React.useState(3);
   const [bestScore, setBestScore] = React.useState(0);
+  const [currentSessionBestScore, setCurrentSessionBestScore] =
+    React.useState(0);
 
   const handleGameOver = React.useCallback(() => {
     const currentScore = Math.floor(gameState.score / 10);
+
+    // Update current session best score
+    setCurrentSessionBestScore((prev) => Math.max(prev, currentScore));
 
     if (lives > 1) {
       setLives((prev) => prev - 1);
@@ -30,13 +35,16 @@ export const App: React.FC<CrmParams> = ({ context }) => {
     } else {
       // Final game over - no more lives left
       setLives(0);
-      setBestScore((prev) => Math.max(prev, currentScore));
+      // Update all-time best score if current session's best score is higher
+      setBestScore((prev) =>
+        Math.max(prev, currentSessionBestScore, currentScore)
+      );
       setGameState((prev) => ({
         ...prev,
         gameOver: true,
       }));
     }
-  }, [lives, gameState.score, setGameState]);
+  }, [lives, gameState.score, setGameState, currentSessionBestScore]);
 
   const gameLoop = React.useCallback(() => {
     if (!gameStarted || gameState.gameOver) return;
@@ -151,7 +159,6 @@ export const App: React.FC<CrmParams> = ({ context }) => {
             >
               <div>Score: {Math.floor(gameState.score / 10)}</div>
               <div>Lives: {lives}</div>
-              <div>Best Score: {bestScore}</div>
             </div>
             {gameState.gameOver && (
               <>
@@ -161,15 +168,18 @@ export const App: React.FC<CrmParams> = ({ context }) => {
                       resetGame();
                     }}
                     livesRemaining={lives}
-                    bestScore={bestScore}
+                    bestScore={currentSessionBestScore}
                   />
                 ) : (
                   <GameOverModal
                     score={gameState.score}
-                    bestScore={bestScore}
+                    bestScore={
+                      lives === 0 ? bestScore : currentSessionBestScore
+                    }
                     onRestart={() => {
                       if (lives === 0) {
                         setLives(3);
+                        setCurrentSessionBestScore(0); // Reset session best score when starting new game
                       }
                       resetGame();
                     }}
