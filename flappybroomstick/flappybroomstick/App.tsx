@@ -36,17 +36,14 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
     } else {
       // Final game over - no more lives left
       setLives(0);
-      // Update all-time best score if current session's best score is higher
-      setBestScore((prev) =>
-        Math.max(prev, currentSessionBestScore, currentScore)
-      );
+      // Update best score immediately with current score if it's higher
+      setBestScore((prev) => Math.max(prev, currentScore));
       setGameState((prev) => ({
         ...prev,
         gameOver: true,
       }));
-      updateBestScore(bestScore);
     }
-  }, [lives, gameState.score, setGameState, currentSessionBestScore]);
+  }, [lives, gameState.score, setGameState]);
 
   const gameLoop = React.useCallback(() => {
     if (!gameStarted || gameState.gameOver) return;
@@ -117,7 +114,7 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
     },
     gameArea: {
       width: "1200px",
-      height: "800px",
+      height: "600px",
       position: "relative" as const,
       backgroundColor: "#000000",
       overflow: "hidden",
@@ -137,7 +134,19 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
     const data: ComponentFramework.WebApi.Entity = {
       new_pointsbroomstickexam: finalScore,
     };
-    await context.webAPI.updateRecord(entityId, "new_challenge", data);
+    console.log("entityId", entityId);
+    console.log("data", data);
+    console.log("finalScore", finalScore);
+    try {
+      const res = await context.webAPI.updateRecord(
+        "new_challenge",
+        entityId,
+        data
+      );
+      console.log("res", res);
+    } catch (error) {
+      console.log("error", error);
+    }
     setStage(100000003);
   }
 
@@ -200,6 +209,17 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
                       resetGame();
                     }}
                     attemptsLeft={lives}
+                    onNext={
+                      lives === 0
+                        ? () =>
+                            updateBestScore(
+                              Math.max(
+                                bestScore,
+                                Math.floor(gameState.score / 10)
+                              )
+                            )
+                        : undefined
+                    }
                   />
                 )}
               </>

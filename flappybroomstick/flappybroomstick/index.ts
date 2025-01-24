@@ -11,7 +11,7 @@ export class flappybroomstick
   private _notifyOutputChanged: () => void;
   private _root: Root;
   private _stage: number;
-  
+
   constructor() {
     this.setCorrectStage = this.setCorrectStage.bind(this);
     this._stage = 100000003;
@@ -40,6 +40,7 @@ export class flappybroomstick
   public setCorrectStage(stage: number) {
     // todo update context, crate function
     console.log("setCorrectStage", stage);
+
     this._stage = stage;
     this._notifyOutputChanged();
   }

@@ -5,6 +5,7 @@ type GameOverModalProps = {
   bestScore: number;
   onRestart: () => void;
   attemptsLeft: number;
+  onNext?: () => void;
 };
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
@@ -12,10 +13,11 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   bestScore,
   onRestart,
   attemptsLeft,
+  onNext,
 }) => {
   const getMessage = () => {
     if (attemptsLeft === 0) {
-      return "Game Over! That's your best score out of three attempts!";
+      return "Good job! You've managed to collect some ingredients for potions class along the way!";
     }
     return "Try again! You can do better!";
   };
@@ -39,7 +41,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
       <p>Best Score: {bestScore}</p>
       {attemptsLeft > 0 && <p>Attempts remaining: {attemptsLeft}</p>}
       <button
-        onClick={onRestart}
+        onClick={attemptsLeft === 0 ? onNext : onRestart}
         style={{
           padding: "10px 20px",
           fontSize: "16px",
@@ -50,7 +52,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
           borderRadius: "5px",
         }}
       >
-        {attemptsLeft === 0 ? "Start New Game" : "Continue"}
+        {attemptsLeft === 0 ? "Next" : "Continue"}
       </button>
     </div>
   );
