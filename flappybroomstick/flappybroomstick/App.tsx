@@ -117,7 +117,7 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
     },
     gameArea: {
       width: "1200px",
-      height: "600px",
+      height: "800px",
       position: "relative" as const,
       backgroundColor: "#000000",
       overflow: "hidden",
