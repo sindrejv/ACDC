@@ -1,21 +1,22 @@
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
-import * as React from "react";
 import App, { CrmParams } from "./App";
 import { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
-import { Explosion } from "./components/Explosion";
 
 export class flappybroomstick
   implements ComponentFramework.StandardControl<IInputs, IOutputs>
 {
-  /**
-   * Empty constructor.
-   */
-  constructor() {}
   private _context: ComponentFramework.Context<IInputs>;
   private _container: HTMLDivElement;
   private _notifyOutputChanged: () => void;
   private _root: Root;
+  private _stage: number;
+  
+  constructor() {
+    this.setCorrectStage = this.setCorrectStage.bind(this);
+    this._stage = 100000003;
+  }
+
   /**
    * Used to initialize the control instance. Controls can kick off remote server calls and other initialization actions here.
    * Data-set values are not initialized here, use updateView.
@@ -36,12 +37,19 @@ export class flappybroomstick
     this._context = context;
   }
 
+  public setCorrectStage(stage: number) {
+    // todo update context, crate function
+    console.log("setCorrectStage", stage);
+    this._stage = stage;
+    this._notifyOutputChanged();
+  }
+
   /**
    * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
    * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
    */
   public updateView(context: ComponentFramework.Context<IInputs>): void {
-    const crmProps: CrmParams = { context };
+    const crmProps: CrmParams = { context, setStage: this.setCorrectStage };
     const element = createElement(App, crmProps);
     if (!this._root) {
       this._root = createRoot(this._container);
@@ -54,7 +62,9 @@ export class flappybroomstick
    * @returns an object based on nomenclature defined in manifest, expecting object[s] for property marked as "bound" or "output"
    */
   public getOutputs(): IOutputs {
-    return {};
+    return {
+      stage: this._stage,
+    };
   }
 
   /**
@@ -63,6 +73,7 @@ export class flappybroomstick
    */
   public destroy(): void {
     // Add code to cleanup control if necessary
+    this._root.unmount();
   }
 }
 

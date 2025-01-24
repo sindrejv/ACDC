@@ -10,9 +10,10 @@ import { GilderoyHealModal } from "./components/GilderoyHealModal";
 
 export type CrmParams = {
   context: ComponentFramework.Context<IInputs>;
+  setStage: (stage: number) => void;
 };
 
-export const App: React.FC<CrmParams> = ({ context }) => {
+export const App: React.FC<CrmParams> = ({ context, setStage }) => {
   const { gameStarted, setGameStarted, gameState, setGameState, resetGame } =
     useGameState();
   const [lives, setLives] = React.useState(3);
@@ -43,6 +44,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
         ...prev,
         gameOver: true,
       }));
+      updateBestScore(bestScore);
     }
   }, [lives, gameState.score, setGameState, currentSessionBestScore]);
 
@@ -60,6 +62,7 @@ export const App: React.FC<CrmParams> = ({ context }) => {
   const handleKeyPress = React.useCallback(
     (event: KeyboardEvent) => {
       if (event.code === "Space") {
+        event.preventDefault();
         if (!gameStarted) {
           setGameStarted(true);
         } else if (gameState.gameOver) {
@@ -121,6 +124,23 @@ export const App: React.FC<CrmParams> = ({ context }) => {
     },
   };
 
+  async function updateBestScore(bestScore: number) {
+    const entityId = context.parameters.entityId.raw;
+    let finalScore = bestScore;
+    if (!entityId) {
+      throw new Error("Entity ID is required");
+    }
+    if (bestScore >= 100) {
+      finalScore = 100;
+    }
+
+    const data: ComponentFramework.WebApi.Entity = {
+      new_pointsbroomstickexam: finalScore,
+    };
+    await context.webAPI.updateRecord(entityId, "new_challenge", data);
+    setStage(100000003);
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.gameArea} onClick={handleClick}>
@@ -177,10 +197,6 @@ export const App: React.FC<CrmParams> = ({ context }) => {
                       lives === 0 ? bestScore : currentSessionBestScore
                     }
                     onRestart={() => {
-                      if (lives === 0) {
-                        setLives(3);
-                        setCurrentSessionBestScore(0); // Reset session best score when starting new game
-                      }
                       resetGame();
                     }}
                     attemptsLeft={lives}
