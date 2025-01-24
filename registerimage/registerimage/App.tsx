@@ -36,8 +36,6 @@ export function App({ context }: CrmParams) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
 
-  const models = "https://cdn.jsdelivr.net/npm/face-api.js/weights";
-
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -172,24 +170,29 @@ export function App({ context }: CrmParams) {
 
   useEffect(() => {
     const loadFaceAPI = async () => {
-      // First load face-api.js from CDN
       const script = document.createElement("script");
-      script.src = "https://cdn.jsdelivr.net/npm/face-api.js";
+      script.src =
+        "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1/dist/face-api.js";
       script.async = true;
+
       script.onload = async () => {
         try {
-          console.log("Loading models from:", models);
+          const modelPath =
+            "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1/model";
+          console.log("Loading models from:", modelPath);
+
           await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(models),
-            faceapi.nets.faceLandmark68Net.loadFromUri(models),
+            faceapi.nets.tinyFaceDetector.loadFromUri(modelPath),
+            faceapi.nets.faceLandmark68Net.loadFromUri(modelPath),
           ]);
+
           console.log("Models loaded successfully");
           setIsModelLoaded(true);
         } catch (error) {
           console.error("Error loading face detection models:", error);
         }
       };
-      document.body.appendChild(script);
+      document.head.appendChild(script);
     };
 
     loadFaceAPI();
