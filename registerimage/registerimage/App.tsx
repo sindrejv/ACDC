@@ -1,7 +1,6 @@
 import { IInputs } from "./generated/ManifestTypes";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-// Replace the any declaration with this type
 declare const faceapi: {
   nets: {
     tinyFaceDetector: {
