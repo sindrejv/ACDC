@@ -1,4 +1,4 @@
-import { GameState, GAME_CONFIG } from "../types/gameTypes";
+import { GameState, GAME_CONFIG, Obstacle } from "../types/gameTypes";
 
 export const updateGameState = (prevState: GameState): GameState => {
   if (!prevState) return prevState;
@@ -28,6 +28,8 @@ export const updateGameState = (prevState: GameState): GameState => {
             GAME_CONFIG.MIN_OBSTACLE_HEIGHT * 2) +
         GAME_CONFIG.MIN_OBSTACLE_HEIGHT,
       gap: GAME_CONFIG.OBSTACLE_GAP,
+      height: GAME_CONFIG.GAME_HEIGHT,
+      isTop: true,
     });
   }
 
@@ -54,7 +56,7 @@ export const updateGameState = (prevState: GameState): GameState => {
 
 const checkCollision = (
   position: { x: number; y: number },
-  obstacles: Array<{ x: number; topHeight: number; gap: number }>
+  obstacles: Obstacle[]
 ) => {
   return obstacles.some((obs) => {
     const inXRange =
