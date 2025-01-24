@@ -66,15 +66,10 @@ export function App({ context }: CrmParams) {
   }, []);
 
   return (
-    <div style={{ maxWidth: "500px" }}>
+    <div className="max-w-500">
       {!base64Image ? (
         <>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            style={{ width: "100%", marginBottom: "10px" }}
-          />
+          <video ref={videoRef} autoPlay playsInline className="w-full mb-10" />
           <button onClick={takePicture}>Take Picture</button>
         </>
       ) : (
@@ -82,9 +77,9 @@ export function App({ context }: CrmParams) {
           <img
             src={`data:image/jpeg;base64,${base64Image}`}
             alt="Captured"
-            style={{ width: "100%", marginBottom: "10px" }}
+            className="w-full mb-10"
           />
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div className="flex gap-10">
             <button onClick={retake}>Retake Picture</button>
             <button onClick={saveImage}>Save Picture</button>
           </div>

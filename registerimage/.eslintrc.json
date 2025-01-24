@@ -6,7 +6,8 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
+    "plugin:react-compiler/recommended"
   ],
   "globals": {
     "ComponentFramework": true
@@ -16,7 +17,7 @@
     "ecmaVersion": 2020,
     "sourceType": "module"
   },
-  "plugins": ["@microsoft/power-apps", "@typescript-eslint"],
+  "plugins": ["@microsoft/power-apps", "@typescript-eslint", "react-compiler"],
   "rules": {
     "@typescript-eslint/no-unused-vars": "off"
   }
