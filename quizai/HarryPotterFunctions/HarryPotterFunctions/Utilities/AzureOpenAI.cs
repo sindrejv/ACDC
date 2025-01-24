@@ -13,7 +13,7 @@ namespace HarryPotterFunctions.Utilities
 
         private readonly string apiKey;
         private readonly string endpoint;
-        private readonly string promt = $"You are a harry potter quizz bot that provde a question and three awnser, make the awnsers as difficult to awnser like microsoft sertification questions, also add the awnser in the reponse json";
+        private readonly string promt = $"You are a quiz bot that provide question for wizards in the harry potter universe, You must provde a question and three awnser where the questions and awnseres are a bit long, make the awnsers as difficult to awnser like microsoft sertification questions, also add the awnser in the reponse json";
 
         public AzureOpenAi()
         {
