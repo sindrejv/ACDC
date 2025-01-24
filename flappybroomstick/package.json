@@ -13,11 +13,12 @@
     "refreshTypes": "pcf-scripts refreshTypes"
   },
   "dependencies": {
+    "@babel/plugin-transform-private-methods": "^7.23.3",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/xrm": "^9.0.82",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@babel/plugin-transform-private-methods": "^7.23.3"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@microsoft/eslint-plugin-power-apps": "^0.2.51",
