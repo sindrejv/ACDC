@@ -45,15 +45,24 @@ export function App({ context }: CrmParams) {
     startCamera();
   };
 
-  const saveImage = () => {
+  const saveImage = async () => {
     if (!base64Image) return;
+    const entityId = context.parameters.entityId.raw;
+    if (!entityId) {
+      throw new Error("Entity ID is required");
+    }
+    const data: ComponentFramework.WebApi.Entity = {
+      new_image: base64Image,
+    };
 
-    const link = document.createElement("a");
-    link.href = `data:image/jpeg;base64,${base64Image}`;
-    link.download = `captured-image-${new Date().getTime()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      await context.webAPI.updateRecord("new_challenge", entityId, data);
+      await context.navigation.openAlertDialog({
+        text: "Image saved successfully",
+      });
+    } catch (error) {
+      console.error("Error saving image:", error);
+    }
   };
 
   React.useEffect(() => {
@@ -66,24 +75,51 @@ export function App({ context }: CrmParams) {
   }, []);
 
   return (
-    <div className="max-w-500">
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       {!base64Image ? (
-        <>
-          <video ref={videoRef} autoPlay playsInline className="w-full mb-10" />
-          <button onClick={takePicture}>Take Picture</button>
-        </>
-      ) : (
-        <>
-          <img
-            src={`data:image/jpeg;base64,${base64Image}`}
-            alt="Captured"
-            className="w-full mb-10"
-          />
-          <div className="flex gap-10">
-            <button onClick={retake}>Retake Picture</button>
-            <button onClick={saveImage}>Save Picture</button>
+        <div className="space-y-4">
+          <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+            />
           </div>
-        </>
+          <button
+            onClick={takePicture}
+            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg
+                     hover:bg-blue-700 transition-colors duration-200"
+          >
+            Take Picture
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            <img
+              src={`data:image/jpeg;base64,${base64Image}`}
+              alt="Captured"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={retake}
+              className="py-3 px-4 bg-gray-200 text-gray-800 font-medium rounded-lg
+                       hover:bg-gray-300 transition-colors duration-200"
+            >
+              Retake Picture
+            </button>
+            <button
+              onClick={saveImage}
+              className="py-3 px-4 bg-green-600 text-white font-medium rounded-lg
+                       hover:bg-green-700 transition-colors duration-200"
+            >
+              Save Picture
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
