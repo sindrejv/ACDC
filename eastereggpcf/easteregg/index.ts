@@ -1,23 +1,15 @@
-import { IInputs, IOutputs } from "./generated/ManifestTypes";
-import { createElement } from "react";
-import { createRoot, Root } from "react-dom/client";
 import { App } from "./App";
-import { CrmParams } from "./App";
-export class registerimage
+import { IInputs, IOutputs } from "./generated/ManifestTypes";
+import * as React from "react";
+
+export class easteregg
   implements ComponentFramework.StandardControl<IInputs, IOutputs>
 {
-  private theComponent: ComponentFramework.ReactControl<IInputs, IOutputs>;
-  private notifyOutputChanged: () => void;
   /**
    * Empty constructor.
    */
-  constructor() {
-    // Empty
-  }
-  private _context: ComponentFramework.Context<IInputs>;
-  private _container: HTMLDivElement;
-  private _notifyOutputChanged: () => void;
-  private _root: Root;
+  constructor() {}
+
   /**
    * Used to initialize the control instance. Controls can kick off remote server calls and other initialization actions here.
    * Data-set values are not initialized here, use updateView.
@@ -32,22 +24,17 @@ export class registerimage
     state: ComponentFramework.Dictionary,
     container: HTMLDivElement
   ): void {
-    this._notifyOutputChanged = notifyOutputChanged;
-    this._container = container;
-    this._context = context;
+    // Add control initialization code
   }
 
   /**
    * Called when any value in the property bag has changed. This includes field values, data-sets, global values such as container height and width, offline status, control metadata values such as label, visible, etc.
    * @param context The entire property bag available to control via Context Object; It contains values as set up by the customizer mapped to names defined in the manifest, as well as utility functions
    */
-  public updateView(context: ComponentFramework.Context<IInputs>): void {
-    const crmProps: CrmParams = { context };
-    const element = createElement(App, crmProps);
-    if (!this._root) {
-      this._root = createRoot(this._container);
-    }
-    this._root.render(element);
+  public updateView(
+    context: ComponentFramework.Context<IInputs>
+  ): React.ReactElement {
+    return React.createElement(App);
   }
 
   /**
