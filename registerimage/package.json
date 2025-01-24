@@ -31,5 +31,11 @@
     "pcf-scripts": "^1",
     "pcf-start": "^1",
     "typescript": "^4.9.5"
+  },
+  "pcfBrowser": {
+    "fs": false,
+    "crypto": false,
+    "stream": false,
+    "path": false
   }
 }

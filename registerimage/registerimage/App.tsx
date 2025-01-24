@@ -1,5 +1,7 @@
 import { IInputs } from "./generated/ManifestTypes";
 import * as React from "react";
+import { useEffect, useRef, useState } from "react";
+import * as faceapi from "face-api.js";
 
 export type CrmParams = {
   context: ComponentFramework.Context<IInputs>;
@@ -9,6 +11,10 @@ export function App({ context }: CrmParams) {
   const [stream, setStream] = React.useState<MediaStream | null>(null);
   const [base64Image, setBase64Image] = React.useState<string | null>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+
+  const models = "https://justadudewhohacks.github.io/face-api.js/models";
 
   const startCamera = async () => {
     try {
@@ -24,17 +30,94 @@ export function App({ context }: CrmParams) {
     }
   };
 
-  const takePicture = () => {
-    if (!videoRef.current) return;
+  const takePicture = async () => {
+    if (!videoRef.current || !canvasRef.current || !isModelLoaded) {
+      console.log("Missing requirements:", {
+        video: !!videoRef.current,
+        canvas: !!canvasRef.current,
+        modelsLoaded: isModelLoaded,
+      });
+      return;
+    }
 
-    const canvas = document.createElement("canvas");
-    canvas.width = videoRef.current.videoWidth;
-    canvas.height = videoRef.current.videoHeight;
-
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-    if (context) {
-      context.drawImage(videoRef.current, 0, 0);
-      // Convert to base64 and remove the data:image/jpeg;base64, prefix
+    if (!context) {
+      console.error("Could not get canvas context");
+      return;
+    }
+
+    try {
+      console.log("Video dimensions:", {
+        width: video.videoWidth,
+        height: video.videoHeight,
+      });
+
+      // First, draw the full video frame to the canvas
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      console.log("Drew video to canvas");
+
+      // Detect faces on the full frame
+      const detections = await faceapi.detectAllFaces(
+        canvas,
+        new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 })
+      );
+      console.log("Face detections:", detections);
+
+      if (detections.length > 0) {
+        // Get the first detected face
+        const face = detections[0];
+        console.log("Face detected:", face.box);
+        const padding = Math.min(face.box.width, face.box.height) * 0.5;
+
+        // Calculate zoom area
+        const zoomArea = {
+          x: Math.max(0, face.box.x - padding),
+          y: Math.max(0, face.box.y - padding),
+          width: Math.min(
+            video.videoWidth - face.box.x,
+            face.box.width + padding * 2
+          ),
+          height: Math.min(
+            video.videoHeight - face.box.y,
+            face.box.height + padding * 2
+          ),
+        };
+        console.log("Zoom area:", zoomArea);
+
+        // Create a temporary canvas for the zoomed image
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = 640;
+        tempCanvas.height = 480;
+        const tempContext = tempCanvas.getContext("2d");
+
+        if (tempContext) {
+          tempContext.drawImage(
+            canvas,
+            zoomArea.x,
+            zoomArea.y,
+            zoomArea.width,
+            zoomArea.height,
+            0,
+            0,
+            tempCanvas.width,
+            tempCanvas.height
+          );
+
+          const base64String = tempCanvas.toDataURL("image/jpeg").split(",")[1];
+          console.log("Generated base64 string length:", base64String.length);
+          setBase64Image(base64String);
+        }
+      } else {
+        console.log("No face detected, using full frame");
+        const base64String = canvas.toDataURL("image/jpeg").split(",")[1];
+        setBase64Image(base64String);
+      }
+    } catch (error) {
+      console.error("Error during face detection:", error);
       const base64String = canvas.toDataURL("image/jpeg").split(",")[1];
       setBase64Image(base64String);
     }
@@ -65,8 +148,24 @@ export function App({ context }: CrmParams) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        console.log("Loading models from:", models);
+        await Promise.all([
+          faceapi.nets.tinyFaceDetector.loadFromUri(models),
+          faceapi.nets.faceLandmark68Net.loadFromUri(models),
+        ]);
+        console.log("Models loaded successfully");
+        setIsModelLoaded(true);
+      } catch (error) {
+        console.error("Error loading face detection models:", error);
+      }
+    };
+
+    loadModels();
     startCamera();
+
     return () => {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
@@ -85,13 +184,18 @@ export function App({ context }: CrmParams) {
               playsInline
               className="w-full h-full object-cover"
             />
+            <canvas
+              ref={canvasRef}
+              style={{ display: "none" }} // Hide the canvas but keep it in DOM
+            />
           </div>
           <button
             onClick={takePicture}
+            disabled={!isModelLoaded}
             className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg
                      hover:bg-blue-700 transition-colors duration-200"
           >
-            Take Picture
+            {isModelLoaded ? "Take Photo" : "Loading..."}
           </button>
         </div>
       ) : (
