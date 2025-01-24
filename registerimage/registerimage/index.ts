@@ -64,5 +64,6 @@ export class registerimage
    */
   public destroy(): void {
     // Add code to cleanup control if necessary
+    this._root.unmount();
   }
 }

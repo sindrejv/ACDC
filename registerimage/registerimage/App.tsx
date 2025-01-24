@@ -206,7 +206,7 @@ export function App({ context }: CrmParams) {
   }, []);
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-lg fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
       {!base64Image ? (
         <div className="space-y-4">
           <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
