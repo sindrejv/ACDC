@@ -1,0 +1,3 @@
+{
+  "exclude": ["node_modules/easter-egg-collection/**"]
+}
