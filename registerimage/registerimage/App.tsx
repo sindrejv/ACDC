@@ -36,7 +36,6 @@ export function App({ context }: CrmParams) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
 
-  // Update models URL to use CDN
   const models = "https://cdn.jsdelivr.net/npm/face-api.js/weights";
 
   const startCamera = async () => {
