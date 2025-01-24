@@ -7,7 +7,7 @@ export type CrmParams = {
 
 export function App({ context }: CrmParams) {
   const [stream, setStream] = React.useState<MediaStream | null>(null);
-  const [capturedImage, setCapturedImage] = React.useState<string | null>(null);
+  const [base64Image, setBase64Image] = React.useState<string | null>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const startCamera = async () => {
@@ -34,21 +34,22 @@ export function App({ context }: CrmParams) {
     const context = canvas.getContext("2d");
     if (context) {
       context.drawImage(videoRef.current, 0, 0);
-      const imageData = canvas.toDataURL("image/jpeg");
-      setCapturedImage(imageData);
+      // Convert to base64 and remove the data:image/jpeg;base64, prefix
+      const base64String = canvas.toDataURL("image/jpeg").split(",")[1];
+      setBase64Image(base64String);
     }
   };
 
   const retake = () => {
-    setCapturedImage(null);
+    setBase64Image(null);
     startCamera();
   };
 
   const saveImage = () => {
-    if (!capturedImage) return;
+    if (!base64Image) return;
 
     const link = document.createElement("a");
-    link.href = capturedImage;
+    link.href = `data:image/jpeg;base64,${base64Image}`;
     link.download = `captured-image-${new Date().getTime()}.jpg`;
     document.body.appendChild(link);
     link.click();
@@ -66,7 +67,7 @@ export function App({ context }: CrmParams) {
 
   return (
     <div style={{ maxWidth: "500px" }}>
-      {!capturedImage ? (
+      {!base64Image ? (
         <>
           <video
             ref={videoRef}
@@ -79,7 +80,7 @@ export function App({ context }: CrmParams) {
       ) : (
         <>
           <img
-            src={capturedImage}
+            src={`data:image/jpeg;base64,${base64Image}`}
             alt="Captured"
             style={{ width: "100%", marginBottom: "10px" }}
           />
