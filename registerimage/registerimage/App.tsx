@@ -1,7 +1,30 @@
 import { IInputs } from "./generated/ManifestTypes";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
-import * as faceapi from "face-api.js";
+// Replace the any declaration with this type
+declare const faceapi: {
+  nets: {
+    tinyFaceDetector: {
+      loadFromUri: (url: string) => Promise<void>;
+    };
+    faceLandmark68Net: {
+      loadFromUri: (url: string) => Promise<void>;
+    };
+  };
+  detectAllFaces: (
+    input: HTMLCanvasElement,
+    options: TinyFaceDetectorOptions
+  ) => Promise<
+    Array<{ box: { x: number; y: number; width: number; height: number } }>
+  >;
+  TinyFaceDetectorOptions: new (options: {
+    scoreThreshold: number;
+  }) => TinyFaceDetectorOptions;
+};
+
+type TinyFaceDetectorOptions = {
+  scoreThreshold: number;
+};
 
 export type CrmParams = {
   context: ComponentFramework.Context<IInputs>;
@@ -14,7 +37,8 @@ export function App({ context }: CrmParams) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
 
-  const models = "https://justadudewhohacks.github.io/face-api.js/models";
+  // Update models URL to use CDN
+  const models = "https://cdn.jsdelivr.net/npm/face-api.js/weights";
 
   const startCamera = async () => {
     try {
@@ -149,21 +173,28 @@ export function App({ context }: CrmParams) {
   };
 
   useEffect(() => {
-    const loadModels = async () => {
-      try {
-        console.log("Loading models from:", models);
-        await Promise.all([
-          faceapi.nets.tinyFaceDetector.loadFromUri(models),
-          faceapi.nets.faceLandmark68Net.loadFromUri(models),
-        ]);
-        console.log("Models loaded successfully");
-        setIsModelLoaded(true);
-      } catch (error) {
-        console.error("Error loading face detection models:", error);
-      }
+    const loadFaceAPI = async () => {
+      // First load face-api.js from CDN
+      const script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/face-api.js";
+      script.async = true;
+      script.onload = async () => {
+        try {
+          console.log("Loading models from:", models);
+          await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(models),
+            faceapi.nets.faceLandmark68Net.loadFromUri(models),
+          ]);
+          console.log("Models loaded successfully");
+          setIsModelLoaded(true);
+        } catch (error) {
+          console.error("Error loading face detection models:", error);
+        }
+      };
+      document.body.appendChild(script);
     };
 
-    loadModels();
+    loadFaceAPI();
     startCamera();
 
     return () => {

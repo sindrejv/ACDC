@@ -15,7 +15,6 @@
   "dependencies": {
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
-    "face-api.js": "^0.19.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -36,6 +35,9 @@
     "fs": false,
     "crypto": false,
     "stream": false,
-    "path": false
+    "path": false,
+    "util": false,
+    "buffer": false,
+    "process": false
   }
 }
