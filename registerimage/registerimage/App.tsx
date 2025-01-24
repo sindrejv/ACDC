@@ -52,7 +52,7 @@ export function App({ context }: CrmParams) {
       throw new Error("Entity ID is required");
     }
     const data: ComponentFramework.WebApi.Entity = {
-      new_image: base64Image,
+      new_base64: base64Image,
     };
 
     try {
