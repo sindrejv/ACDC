@@ -13,8 +13,10 @@
     "refreshTypes": "pcf-scripts refreshTypes"
   },
   "dependencies": {
+    "@babel/plugin-transform-private-methods": "^7.23.3",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/xrm": "^9.0.82",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -26,6 +28,7 @@
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
     "eslint-plugin-promise": "^7.1.0",
+    "eslint-plugin-react-compiler": "^19.0.0-beta-decd7b8-20250118",
     "pcf-scripts": "^1",
     "pcf-start": "^1",
     "typescript": "^4.9.5"

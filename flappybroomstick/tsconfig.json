@@ -1,13 +1,14 @@
 {
   "extends": "./node_modules/pcf-scripts/tsconfig_base.json",
   "compilerOptions": {
+    "typeRoots": ["node_modules/@types", "types"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "jsx": "react",
-    "target": "es5",
-    "module": "commonjs",
+    "moduleResolution": "node",
     "strict": true,
-    "typeRoots": ["node_modules/@types"],
-    "types": ["react", "node", "powerapps-component-framework"]
-  }
+    "target": "es2022",
+    "lib": ["es2022", "dom"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "types/custom.d.ts"]
 }
