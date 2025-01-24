@@ -4,7 +4,7 @@
     "typeRoots": ["node_modules/@types"],
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "moduleResolution": "node",
     "strict": true,
     "target": "es2022",

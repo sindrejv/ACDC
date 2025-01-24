@@ -7,7 +7,7 @@
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:promise/recommended",
-    "plugin:react-compiler/recommended"
+    "plugin:react/recommended"
   ],
   "globals": {
     "ComponentFramework": true
@@ -15,10 +15,19 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 2020,
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
-  "plugins": ["@microsoft/power-apps", "@typescript-eslint", "react-compiler"],
+  "plugins": ["@microsoft/power-apps", "@typescript-eslint", "react"],
   "rules": {
-    "@typescript-eslint/no-unused-vars": "off"
+    "@typescript-eslint/no-unused-vars": "off",
+    "react/react-in-jsx-scope": "off"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
   }
 }
