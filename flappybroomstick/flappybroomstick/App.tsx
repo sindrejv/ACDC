@@ -147,7 +147,7 @@ export const App: React.FC<CrmParams> = ({ context, setStage }) => {
     } catch (error) {
       console.log("error", error);
     }
-    setStage(100000003);
+    setStage(100000004);
   }
 
   return (
