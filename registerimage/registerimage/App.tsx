@@ -1,6 +1,7 @@
 import { IInputs } from "./generated/ManifestTypes";
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
+
 declare const faceapi: {
   nets: {
     tinyFaceDetector: {
@@ -35,6 +36,7 @@ export function App({ context }: CrmParams) {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const startCamera = async () => {
     try {
@@ -69,23 +71,16 @@ export function App({ context }: CrmParams) {
     }
 
     try {
-      console.log("Video dimensions:", {
-        width: video.videoWidth,
-        height: video.videoHeight,
-      });
-
       // First, draw the full video frame to the canvas
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      console.log("Drew video to canvas");
 
       // Detect faces on the full frame
       const detections = await faceapi.detectAllFaces(
         canvas,
         new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.3 })
       );
-      console.log("Face detections:", detections);
 
       if (detections.length > 0) {
         // Get the first detected face
@@ -106,8 +101,6 @@ export function App({ context }: CrmParams) {
             face.box.height + padding * 2
           ),
         };
-        console.log("Zoom area:", zoomArea);
-
         // Create a temporary canvas for the zoomed image
         const tempCanvas = document.createElement("canvas");
         tempCanvas.width = 640;
@@ -149,22 +142,45 @@ export function App({ context }: CrmParams) {
   };
 
   const saveImage = async () => {
-    if (!base64Image) return;
+    if (!base64Image) {
+      await context.navigation.openAlertDialog({
+        text: "No image to save. Please take a photo first.",
+      });
+      return;
+    }
+
     const entityId = context.parameters.entityId.raw;
     if (!entityId) {
-      throw new Error("Entity ID is required");
+      await context.navigation.openAlertDialog({
+        text: "Entity ID is missing. Please try again.",
+      });
+      return;
     }
-    const data: ComponentFramework.WebApi.Entity = {
-      new_base64: base64Image,
+
+    setIsSaving(true);
+    const data = {
+      documentbody: base64Image,
+      "objectid_new_challenge@odata.bind": `/new_challenges(${entityId})`,
+      filename: "Participant Image.jpg",
+      mimetype: "image/jpeg",
+      objecttypecode: "new_challenge",
+      isdocument: true,
+      subject: "Participant Image",
     };
 
     try {
-      await context.webAPI.updateRecord("new_challenge", entityId, data);
+      const result = await context.webAPI.createRecord("annotation", data);
+      console.log("Image saved successfully with ID:", result.id);
       await context.navigation.openAlertDialog({
         text: "Image saved successfully",
       });
     } catch (error) {
       console.error("Error saving image:", error);
+      await context.navigation.openAlertDialog({
+        text: `Failed to save image: ${(error as Error).message}`,
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -249,10 +265,11 @@ export function App({ context }: CrmParams) {
             </button>
             <button
               onClick={saveImage}
+              disabled={isSaving}
               className="py-3 px-4 bg-green-600 text-white font-medium rounded-lg
-                       hover:bg-green-700 transition-colors duration-200"
+                       hover:bg-green-700 transition-colors duration-200 disabled:bg-gray-400"
             >
-              Save Picture
+              {isSaving ? "Saving..." : "Save Picture"}
             </button>
           </div>
         </div>
